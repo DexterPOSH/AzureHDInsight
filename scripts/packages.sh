@@ -1,0 +1,1 @@
+/usr/bin/anaconda/bin/pip install gmplot
