@@ -63,6 +63,9 @@
             }
         }
     },
+    "variables": {
+        "storagecontainername": "dexterposhspark-2018-01-11t05-16-16-953z"
+    },
     "resources": [
         {
             "apiVersion": "2015-03-01-preview",
@@ -89,7 +92,7 @@
                         {
                             "name": "dexterposhsparkstorage00.blob.core.windows.net",
                             "isDefault": true,
-                            "container": "dexterposhspark-2018-01-11t05-16-16-953z",
+                            "container": "[variables('storagecontainername')]",
                             "key": "[listKeys('/subscriptions/4359ff68-61ce-430c-b885-4084a2656de7/resourceGroups/dexterposhspark/providers/Microsoft.Storage/storageAccounts/dexterposhsparkstorage00', '2015-05-01-preview').key1]"
                         }
                     ]
@@ -127,7 +130,7 @@
                         {
                             "name": "workernode",
                             "minInstanceCount": 1,
-                            "targetInstanceCount": 4,
+                            "targetInstanceCount": "[parameters('clusterWorkerNodeCount')]",
                             "hardwareProfile": {
                                 "vmSize": "Large"
                             },
