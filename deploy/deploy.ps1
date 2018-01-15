@@ -41,10 +41,10 @@ param(
  $deploymentName,
 
  [string]
- $templateFilePath = "template.json",
+ $templateFilePath = "$PSScriptRoot\template.json",
 
  [string]
- $parametersFilePath = "parameters.json",
+ $parametersFilePath = "$PSScriptRoot\parameters.json",
 
  [Parameter()]
  [securestring]$password
