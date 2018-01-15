@@ -25,13 +25,13 @@
 #>
 
 param(
- [Parameter(Mandatory=$True)]
+ [Parameter(Mandatory=$False)]
  [string]
  $subscriptionId,
 
- [Parameter(Mandatory=$True)]
+ [Parameter(Mandatory=$False)]
  [string]
- $resourceGroupName,
+ $resourceGroupName="dexterposhspark",
 
  [string]
  $resourceGroupLocation,
@@ -44,7 +44,10 @@ param(
  $templateFilePath = "template.json",
 
  [string]
- $parametersFilePath = "parameters.json"
+ $parametersFilePath = "parameters.json",
+
+ [Parameter()]
+ [securestring]$password
 )
 
 <#
@@ -67,12 +70,20 @@ Function RegisterRP {
 $ErrorActionPreference = "Stop"
 
 # sign in
-Write-Host "Logging in...";
-Login-AzureRmAccount;
+$Context = Get-AzureRmContext
+if ($Context.Subscription -eq $null) {
+    Write-Host "Logging in...";
+    Login-AzureRmAccount;
+}
+else {
+    Write-Host "Already logged in with below context"
+    Write-Host -ForegroundColor Cyan -Object $Context
+}
 
-# select subscription
-Write-Host "Selecting subscription '$subscriptionId'";
-Select-AzureRmSubscription -SubscriptionID $subscriptionId;
+# select subscription, commenting this I only have one subscription at the moment.
+# revisit this if there are multiple subscription
+# Write-Host "Selecting subscription '$subscriptionId'";
+# Select-AzureRmSubscription -SubscriptionID $subscriptionId;
 
 # Register RPs
 $resourceProviders = @("microsoft.hdinsight");
@@ -98,10 +109,14 @@ else{
     Write-Host "Using existing resource group '$resourceGroupName'";
 }
 
+# Check for password
+if (-not $password) {
+    $password = Read-Host -AsSecureString -Prompt "Enter the password to be used for HDInsight cluster & SSH"
+}
 # Start the deployment
 Write-Host "Starting deployment...";
 if(Test-Path $parametersFilePath) {
-    New-AzureRmResourceGroupDeployment -ResourceGroupName $resourceGroupName -TemplateFile $templateFilePath -TemplateParameterFile $parametersFilePath;
+    New-AzureRmResourceGroupDeployment -ResourceGroupName $resourceGroupName -TemplateFile $templateFilePath -TemplateParameterFile $parametersFilePath -ClusterLoginPassword $password -sshPassword $password;
 } else {
     New-AzureRmResourceGroupDeployment -ResourceGroupName $resourceGroupName -TemplateFile $templateFilePath;
 }
